@@ -5,13 +5,13 @@ class UserRepository {
     constructor () {}
 
     async createUser (user: CreateUserProps) { 
+        const sql = `
+            INSERT INTO users
+            (name, email, password) values
+            ($1, $2, $3);
+        `
+
         try {
-            const sql = `
-                INSERT INTO users
-                (name, email, password) values
-                ($1, $2, $3);
-            `
-            
             const result = await client.query(sql, [user.name, user.email, user.password]);
             return result.rowCount;
         } catch (error) {
