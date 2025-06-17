@@ -4,7 +4,7 @@ import { UserProps, CreateUserProps } from "../types/user-types"
 class UserRepository {
     constructor () {}
 
-    async createUser (user: CreateUserProps) { 
+    async create (user: CreateUserProps) { 
         const sql = `
             INSERT INTO users
             (name, email, password) values
