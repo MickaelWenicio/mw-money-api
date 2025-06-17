@@ -1,10 +1,10 @@
-import { client } from '../config/db'
-import { UserProps, CreateUserProps } from '../types/user-types'
+import { client } from '../config/db';
+import { CreateUserProps, UserProps } from '../types/user-types';
 
 class UserRepository {
     constructor () {}
 
-    async create (user: CreateUserProps) { 
+    async create (user: CreateUserProps): Promise<UserProps> { 
         const sql = `
             INSERT INTO users
             (name, email, password) values
@@ -13,7 +13,7 @@ class UserRepository {
 
         try {
             const result = await client.query(sql, [user.name, user.email, user.password]);
-            return result.rowCount;
+            return result.rows[0];
         } catch (error) {
             throw new Error(`Failed to create user: ${error}` );
         }
@@ -34,4 +34,4 @@ class UserRepository {
     }
 }
 
-export default new UserRepository();
+export const userRepository = new UserRepository();
