@@ -1,5 +1,5 @@
-import { client } from "../config/db"
-import { UserProps, CreateUserProps } from "../types/user-types"
+import { client } from '../config/db'
+import { UserProps, CreateUserProps } from '../types/user-types'
 
 class UserRepository {
     constructor () {}
@@ -15,7 +15,21 @@ class UserRepository {
             const result = await client.query(sql, [user.name, user.email, user.password]);
             return result.rowCount;
         } catch (error) {
-            throw new Error( `Failed to create user: , ${error}` );
+            throw new Error(`Failed to create user: ${error}` );
+        }
+    }
+
+    async findByEmail (email: string): Promise<UserProps> {
+        const sql = `
+            SELECT * FROM users
+            WHERE users.email = $1;
+        `;
+
+        try {
+            const result = await client.query(sql, [email]);
+            return result.rows[0];
+        } catch (error) {
+            throw new Error(`User not found: ${error}`);
         }
     }
 }

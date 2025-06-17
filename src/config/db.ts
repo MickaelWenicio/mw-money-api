@@ -11,9 +11,9 @@ export const client = new Client({
 export async function connectDB () {
     try {
         await client.connect();
-        console.log("connected to database successfully");
+        console.log('connected to database successfully');
         return client;
     } catch(e) {
-        console.error("Error connecting database: " + e);
+        console.error('Error connecting database: ' + e);
     }
 }
