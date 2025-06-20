@@ -37,3 +37,5 @@ class UserService {
         return new UserModel(newUser);
     }
 }
+
+export const userService = new UserService(); 
