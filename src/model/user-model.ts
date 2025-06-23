@@ -17,6 +17,10 @@ export class UserModel {
         this.updated_at = props.updated_at || new Date ();
     }
 
+    getId () {
+        return this.id;
+    }
+
     getPassword () {
         return this.password;
     }
