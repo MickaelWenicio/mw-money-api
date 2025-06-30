@@ -8,14 +8,15 @@ class UserRepository {
         const sql = `
             INSERT INTO users
             (name, email, password) values
-            ($1, $2, $3);
+            ($1, $2, $3)
+            RETURNING *;
         `
 
         try {
             const result = await client.query(sql, [user.name, user.email, user.password]);
             return result.rows[0];
         } catch (error) {
-            throw new Error(`Failed to create user: ${error}` );
+            throw Error('Failed to create user: ' + error);
         }
     }
 
@@ -24,13 +25,8 @@ class UserRepository {
             SELECT * FROM users
             WHERE users.email = $1;
         `;
-
-        try {
-            const result = await client.query(sql, [email]);
-            return result.rows[0];
-        } catch (error) {
-            throw new Error(`User not found: ${error}`);
-        }
+        const result = await client.query(sql, [email]);
+        return result.rows[0];
     }
 }
 
