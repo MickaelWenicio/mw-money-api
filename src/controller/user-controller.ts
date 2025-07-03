@@ -6,17 +6,16 @@ class UserController {
     constructor () {}
 
     async create (req: Request, res: Response) {
-        const { name, email, password } = req.body;
-        if(!req.body.name || !req.body.email || !req.body.password) {
-            res.status(400).json({message: 'Missing data to register a new user'});
+        const newUserData = {
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password
+        };
+
+        if(!newUserData.name || !newUserData.email || !newUserData.password) {
+            res.status(400).json({message: 'Missing required fields to register a new user'});
             return;
         }
-
-        const newUserData = {
-            name,
-            email, 
-            password
-        };
 
         try {
             const newUser = await userService.create(newUserData);
