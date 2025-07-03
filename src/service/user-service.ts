@@ -9,13 +9,29 @@ class UserService {
 
     validadeData (user: CreateUserProps) {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!user.email.includes('@')) {
+        if (!emailRegex.test(user.email)) {
             throw new AppError('Invalid email');
         }
 
         if (!passwordRegex.test(user.password)) {
             throw new AppError('Weak password');
+        }
+    }
+
+    async findById (id: string): Promise<UserModel> {
+        try {
+            const user = await userRepository.findById(id);
+
+            if (!user) {
+                throw new AppError('User not found', 404);
+            }
+
+            return new UserModel(user);
+        } catch (error) {
+            console.error('Error in userService.findById: ' + error);
+            throw new AppError('Internal server error', 500);
         }
     }
 

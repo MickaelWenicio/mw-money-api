@@ -28,6 +28,15 @@ class UserRepository {
         const result = await client.query(sql, [email]);
         return result.rows[0];
     }
+
+    async findById (id: string): Promise<UserProps> {
+        const sql = `
+            SELECT * FROM users
+            WHERE users.id = $1;
+        `;
+        const result = await client.query(sql, [id]);
+        return result.rows[0];
+    }
 }
 
 export const userRepository = new UserRepository();
