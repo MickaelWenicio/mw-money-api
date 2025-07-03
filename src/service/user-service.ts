@@ -35,6 +35,11 @@ class UserService {
         }
     }
 
+    async checkIfUserExists (userId: string) {
+        await this.findById(userId);
+        return;
+    }
+
     async create (user: CreateUserProps): Promise<UserModel> {
         this.validadeData(user);
 
