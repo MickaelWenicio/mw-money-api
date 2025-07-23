@@ -1,11 +1,25 @@
-import { transactionService } from "../service/transaction-service";
-import { Request, Response } from "express";
-import { AppError } from "../utils/app-error";
+import { transactionService } from '../service/transaction-service';
+import { Request, Response } from 'express';
+import { AppError } from '../utils/app-error';
 
 class TransactionController {
-    async create(req: Request, res: Response) {
+    async create (req: Request, res: Response) {
         try {
-            const transaction = await transactionService.create(req.body);
+            const newTransactionData = {
+                userId: req.body.userId,
+                title: req.body.title,
+                description: req.body.description,
+                value: req.body.value,
+                type: req.body.type,
+                categoryId: req.body.categoryId
+            }
+
+            if (!newTransactionData.userId || !newTransactionData.title || !newTransactionData.value ||!newTransactionData.type) {
+                res.status(400).json({message: 'Missing required fields to create a transaction'});
+                return;
+            }
+
+            const transaction = await transactionService.create(newTransactionData);
             return res.status(201).json(transaction);
         } catch (error) {
             console.error('Error in TransactionController.create: ', error);
@@ -22,3 +36,5 @@ class TransactionController {
         }
     }
 }
+
+export const transactionController = new TransactionController();

@@ -7,8 +7,8 @@ class TransactionRepository {
     async create (transaction: CreateTransactionProps ): Promise<TransactionProps> {
         const sql = `
             INSERT INTO transactions
-            (user_id, title, description, value, type)
-            VALUES ($1, $2, $3, $4, $5)
+            (user_id, title, description, value, type, category_id)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
         `
 
@@ -18,7 +18,8 @@ class TransactionRepository {
                 transaction.title,
                 transaction.description,
                 transaction.value,
-                transaction.type
+                transaction.type,
+                transaction.categoryId
             ]);
             return result.rows[0];
         } catch (error) { 
@@ -28,9 +29,19 @@ class TransactionRepository {
 
     async getByUserId (userId: string): Promise<TransactionProps[]> {
         const sql = `
-            SELECT * FROM transactions
-            WHERE user_id = $1
-            ORDER BY created_at DESC;
+            SELECT 
+                transactions.user_id, 
+                transactions.title, 
+                transactions.description, 
+                transactions.value, 
+                transactions.type, 
+                transactions.category_id, 
+                transaction.created_at,
+                categories.name
+            FROM transactions
+            INNER JOIN categories ON transactions.category_id = categories.id
+            WHERE transactions.user_id = $1
+            ORDER BY transactions.created_at DESC;
         `;
         try {
             const result = await client.query(sql, [userId]);
@@ -42,8 +53,18 @@ class TransactionRepository {
 
     async getById (id: string): Promise<TransactionProps> {
         const sql = `
-            SELECT * FROM transactions
-            WHERE id = $1;
+            SELECT 
+                transactions.user_id, 
+                transactions.title, 
+                transactions.description, 
+                transactions.value, 
+                transactions.type, 
+                transactions.category_id, 
+                transaction.created_at,
+                categories.name 
+            FROM transactions
+            INNER JOIN categories ON transactions.category_id = categories.id
+            WHERE transactions.id = $1
         `;
         try {
             const result = await client.query(sql, [id]);

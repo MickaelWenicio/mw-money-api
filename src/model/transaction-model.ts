@@ -8,6 +8,7 @@ export class TransactionModel {
     public value: number;
     public type: 'income' | 'expense';
     public createdAt: Date;
+    public categoryId: number | null;
 
     constructor(props: TransactionProps) {
         this.id = props.id;
@@ -17,6 +18,7 @@ export class TransactionModel {
         this.value = props.value;
         this.type = props.type;
         this.createdAt = props.createdAt || new Date();
+        this.categoryId = props.categoryId
     }
 
     getId() {
