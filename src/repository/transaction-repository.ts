@@ -7,8 +7,13 @@ class TransactionRepository {
     async create (transaction: CreateTransactionProps ): Promise<TransactionProps> {
         const sql = `
             INSERT INTO transactions
+<<<<<<< HEAD
             (user_id, title, description, value, type, category_id)
             VALUES ($1, $2, $3, $4, $5, $6)
+=======
+            (user_id, title, description, value, type)
+            VALUES ($1, $2, $3, $4, $5)
+>>>>>>> 58d91533767f4e9ae482f77454f16d7252a68c6e
             RETURNING *;
         `
 
@@ -42,6 +47,7 @@ class TransactionRepository {
             INNER JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.user_id = $1
             ORDER BY transactions.created_at DESC;
+
         `;
         try {
             const result = await client.query(sql, [userId]);

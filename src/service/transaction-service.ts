@@ -9,7 +9,7 @@ class TransactionService {
 
     async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
         await userService.checkIfUserExists(transaction.userId);
-        
+
         if(!transaction.value || transaction.value <= 0) {
             throw new AppError('Value must be greater than zero');
         }
