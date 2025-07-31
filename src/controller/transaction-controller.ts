@@ -20,7 +20,7 @@ class TransactionController {
             }
 
             const transaction = await transactionService.create(newTransactionData);
-            return res.status(201).json(transaction);
+            res.status(201).json(transaction);
         } catch (error) {
             console.error('Error in TransactionController.create: ', error);
             if (error instanceof AppError) res.status(error.statusCode).json({message: error.message})
@@ -30,7 +30,7 @@ class TransactionController {
     async getByUserId(req: Request, res: Response) {
         try {
             const transactions = await transactionService.getByUserId(req.params.userId);
-            return res.status(200).json(transactions);
+            res.status(200).json(transactions);
         } catch (error) {
             if (error instanceof AppError) res.status(error.statusCode).json({message: error.message})
         }

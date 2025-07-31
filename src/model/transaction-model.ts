@@ -17,7 +17,7 @@ export class TransactionModel {
         this.description = props.description;
         this.value = props.value;
         this.type = props.type;
-        this.createdAt = props.createdAt || new Date();
+        this.createdAt = props.createdAt
         this.categoryId = props.categoryId
     }
 
