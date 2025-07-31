@@ -13,8 +13,8 @@ export class UserModel {
         this.name = props.name;
         this.email = props.email;
         this.password = props.password;
-        this.created_at = props.created_at || new Date();
-        this.updated_at = props.updated_at || new Date ();
+        this.created_at = props.created_at;
+        this.updated_at = props.updated_at;
     }
 
     getId () {
