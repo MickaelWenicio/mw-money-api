@@ -69,16 +69,13 @@ class TransactionRepository {
         `;
         try {
             const result = await client.query(sql, [id]);
-            if (result.rows.length === 0) {
-                throw Error('Transaction not found');
-            }
             return result.rows[0];
         } catch (error) {
             throw Error('Failed to retrieve transaction: ' + error);
         }
     }
 
-    async delete (id: string): Promise<void> {
+    async deleteById (id: string): Promise<void> {
         const sql = `
             DELETE FROM transactions
             WHERE id = $1;
