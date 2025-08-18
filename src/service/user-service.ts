@@ -20,24 +20,14 @@ class UserService {
         }
     }
 
-    async findById (id: string): Promise<UserModel> {
+    async getById (id: string): Promise<UserModel> {
         try {
-            const user = await userRepository.findById(id);
-
-            if (!user) {
-                throw new AppError('User not found', 404);
-            }
-
+            const user = await userRepository.getById(id);
             return new UserModel(user);
         } catch (error) {
             console.error('Error in userService.findById: ' + error);
-            throw new AppError('Internal server error', 500);
+            throw new AppError('Internal server error', 'internal_server_error');
         }
-    }
-
-    async checkIfUserExists (userId: string) {
-        await this.findById(userId);
-        return;
     }
 
     async create (user: CreateUserProps): Promise<UserModel> {
@@ -60,7 +50,7 @@ class UserService {
             return new UserModel(newUser);
         } catch (error) {
             console.error('Error in userService.create: ' + error);
-            throw new AppError('Internal server error', 500);
+            throw new AppError('Internal server error', 'internal_server_error');
         }
     }
 }

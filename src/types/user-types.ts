@@ -7,8 +7,4 @@ export type UserProps = {
     updated_at: Date
 }
 
-export type CreateUserProps = {
-    name: string;
-    email: string;
-    password: string;
-}
+export type CreateUserProps = Omit<UserProps, 'id' | 'created_at' | 'updated_at'>;

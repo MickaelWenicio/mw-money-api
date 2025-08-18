@@ -29,7 +29,7 @@ class UserRepository {
         return result.rows[0];
     }
 
-    async findById (id: string): Promise<UserProps> {
+    async getById (id: string): Promise<UserProps> {
         const sql = `
             SELECT * FROM users
             WHERE users.id = $1;
