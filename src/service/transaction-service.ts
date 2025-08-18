@@ -8,7 +8,11 @@ class TransactionService {
     constructor() {}
 
     async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
-        await userService.checkIfUserExists(transaction.userId);
+        const user = await userService.getById(transaction.userId);
+
+        if(!user) {
+            throw new AppError('User did not exists', 'not_found');
+        }
 
         if(!transaction.value || transaction.value <= 0) {
             throw new AppError('Value must be greater than zero');
@@ -19,12 +23,12 @@ class TransactionService {
             return new TransactionModel(newTransaction);
         } catch (error) {
             console.error('Error in transactionService.create: ' + error);
-            throw new AppError('Internal server error', 500);
+            throw new AppError('Internal server error', 'internal_server_error');
         }
     }
 
     async getByUserId (userId: string): Promise<TransactionModel[]> {
-        await userService.checkIfUserExists(userId);
+        await userService.getById(userId);
 
         try {
             const unformattedList = await transactionRepository.getByUserId(userId);
@@ -34,12 +38,19 @@ class TransactionService {
             return transactionList;
         } catch (error) {
             console.error('Error in transactionService.getByUserId');
-            throw new AppError('Internal server error', 500);
+            throw new AppError('Internal server error', 'internal_server_error');
         }
     }
 
-    async delete (transactionId: string) {
-        return
+    async deleteById (transactionId: string) {
+        await transactionRepository.getById(transactionId);
+
+        try {
+            await transactionRepository.deleteById(transactionId);
+        } catch (error) {
+            console.error('Error in transactionService.deleteById');
+            throw new AppError('Internal server error', 'internal_server_error');
+        }
     }
 }
 
