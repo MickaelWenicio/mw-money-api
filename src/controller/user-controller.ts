@@ -13,6 +13,17 @@ class UserController {
         const newUser = await userService.create({ name, email, password });
         res.status(201).json({ message: `New user ${newUser.getId()} created successfully` });
     }
+
+    async getById(req: Request, res: Response) {
+        const { userId } = req.params;
+
+        if (!userId) {
+            throw new AppError('Missing id in request body', 'bad_request');
+        }
+
+        const user = await userService.getAllUserInfo(userId);
+        res.status(200).json({ data: user });
+    }
 }
 
 export const userController = new UserController();
