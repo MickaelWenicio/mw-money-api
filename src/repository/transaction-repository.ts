@@ -70,7 +70,7 @@ class TransactionRepository {
         await client.query(sql, [id]);
     }
 
-    async updateById(transactionId: number, transactionData: Partial<TransactionProps>): Promise<void> {
+    async updateById(transactionId: string, transactionData: Partial<TransactionProps>): Promise<void> {
         const { title, description, value, type, categoryId } = transactionData;
 
         const sql = `

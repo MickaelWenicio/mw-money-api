@@ -30,6 +30,19 @@ class TransactionService {
         await transactionRepository.getById(transactionId);
         await transactionRepository.deleteById(transactionId);
     }
+
+    async updateById(transactionId: string, transactionData: Partial<CreateTransactionProps>) {
+        const transaction = await transactionRepository.getById(transactionId);
+        if (!transaction) {
+            throw new AppError('Transaction does not exist', 'not_found');
+        }
+
+        if (transactionData.value && transactionData.value <= 0) {
+            throw new AppError('Value must be greater than zero');
+        }
+
+        await transactionRepository.updateById(transactionId, transactionData);
+    }
 }
 
 export const transactionService = new TransactionService();
