@@ -10,21 +10,17 @@ class TransactionRepository {
             (user_id, title, description, value, type, category_id)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *;
-        `
+        `;
 
-        try {
-            const result = await client.query(sql, [
-                transaction.userId,
-                transaction.title,
-                transaction.description,
-                transaction.value,
-                transaction.type,
-                transaction.categoryId
-            ]);
-            return result.rows[0];
-        } catch (error) { 
-            throw Error('Failed to create transaction: ' + error);
-        }
+        const result = await client.query(sql, [
+            transaction.userId,
+            transaction.title,
+            transaction.description,
+            transaction.value,
+            transaction.type,
+            transaction.categoryId
+        ]);
+        return result.rows[0];
     }
 
     async getByUserId (userId: string): Promise<TransactionProps[]> {
@@ -36,20 +32,15 @@ class TransactionRepository {
                 transactions.value, 
                 transactions.type, 
                 transactions.category_id, 
-                transaction.created_at,
+                transactions.created_at,
                 categories.name
             FROM transactions
             INNER JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.user_id = $1
             ORDER BY transactions.created_at DESC;
-
         `;
-        try {
-            const result = await client.query(sql, [userId]);
-            return result.rows;
-        } catch (error) {
-            throw Error('Failed to retrieve transactions: ' + error);
-        }
+        const result = await client.query(sql, [userId]);
+        return result.rows;
     }
 
     async getById (id: string): Promise<TransactionProps> {
@@ -67,12 +58,8 @@ class TransactionRepository {
             LEFT JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.id = $1
         `;
-        try {
-            const result = await client.query(sql, [id]);
-            return result.rows[0];
-        } catch (error) {
-            throw Error('Failed to retrieve transaction: ' + error);
-        }
+        const result = await client.query(sql, [id]);
+        return result.rows[0];
     }
 
     async deleteById (id: string): Promise<void> {
@@ -80,11 +67,7 @@ class TransactionRepository {
             DELETE FROM transactions
             WHERE id = $1;
         `;
-        try {
-            await client.query(sql, [id]);
-        } catch (error) {
-            throw Error('Failed to delete transaction: ' + error);
-        }
+        await client.query(sql, [id]);
     }
 }
 

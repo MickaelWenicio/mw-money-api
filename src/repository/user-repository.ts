@@ -10,14 +10,10 @@ class UserRepository {
             (name, email, password) values
             ($1, $2, $3)
             RETURNING *;
-        `
+        `;
 
-        try {
-            const result = await client.query(sql, [user.name, user.email, user.password]);
-            return result.rows[0];
-        } catch (error) {
-            throw Error('Failed to create user: ' + error);
-        }
+        const result = await client.query(sql, [user.name, user.email, user.password]);
+        return result.rows[0];
     }
 
     async findByEmail (email: string): Promise<UserProps> {
