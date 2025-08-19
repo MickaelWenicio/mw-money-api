@@ -1,57 +1,49 @@
-import { TransactionModel } from "../model/transaction-model";
-import { CreateTransactionProps } from "../types/transaction-type";
-import { transactionRepository } from "../repository/transaction-repository";
-import { userService } from "./user-service";
-import { AppError } from "../utils/app-error";
+import { CreateUserProps } from '../types/user-types';
+import { UserModel } from '../model/user-model';
+import { AppError } from '../utils/app-error';
+import { userRepository } from '../repository/user-repository';
+import bcrypt from 'bcrypt';
 
-class TransactionService {
-    constructor() {}
+class UserService {
+    validadeData(user: CreateUserProps) {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
-        const user = await userService.getById(transaction.userId);
-
-        if(!user) {
-            throw new AppError('User did not exists', 'not_found');
+        if (!emailRegex.test(user.email)) {
+            throw new AppError('Invalid email');
         }
 
-        if(!transaction.value || transaction.value <= 0) {
-            throw new AppError('Value must be greater than zero');
-        }
-        
-        try {
-            const newTransaction = await transactionRepository.create(transaction);
-            return new TransactionModel(newTransaction);
-        } catch (error) {
-            console.error('Error in transactionService.create: ' + error);
-            throw new AppError('Internal server error', 'internal_server_error');
+        if (!passwordRegex.test(user.password)) {
+            throw new AppError('Weak password');
         }
     }
 
-    async getByUserId (userId: string): Promise<TransactionModel[]> {
-        await userService.getById(userId);
-
-        try {
-            const unformattedList = await transactionRepository.getByUserId(userId);
-            const transactionList = unformattedList.map(item => {
-                return new TransactionModel(item);
-            })
-            return transactionList;
-        } catch (error) {
-            console.error('Error in transactionService.getByUserId');
-            throw new AppError('Internal server error', 'internal_server_error');
+    async getById(id: string): Promise<UserModel> {
+        const user = await userRepository.getById(id);
+        if (!user) {
+            throw new AppError('User not found', 'not_found');
         }
+        return new UserModel(user);
     }
 
-    async deleteById (transactionId: string) {
-        await transactionRepository.getById(transactionId);
+    async create(user: CreateUserProps): Promise<UserModel> {
+        this.validadeData(user);
 
-        try {
-            await transactionRepository.deleteById(transactionId);
-        } catch (error) {
-            console.error('Error in transactionService.deleteById');
-            throw new AppError('Internal server error', 'internal_server_error');
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const emailExists = await userRepository.findByEmail(user.email);
+
+        if (emailExists) {
+            throw new AppError('Email is already registered');
         }
+
+        const newUser = await userRepository.create({
+            name: user.name,
+            email: user.email,
+            password: hashedPassword
+        });
+
+        return new UserModel(newUser);
     }
 }
 
-export const transactionService = new TransactionService();
+export const userService = new UserService();

@@ -5,9 +5,7 @@ import { userRepository } from '../repository/user-repository';
 import bcrypt from 'bcrypt';
 
 class UserService {
-    constructor () {}
-
-    validadeData (user: CreateUserProps) {
+    validadeData(user: CreateUserProps) {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -20,39 +18,32 @@ class UserService {
         }
     }
 
-    async getById (id: string): Promise<UserModel> {
-        try {
-            const user = await userRepository.getById(id);
-            return new UserModel(user);
-        } catch (error) {
-            console.error('Error in userService.findById: ' + error);
-            throw new AppError('Internal server error', 'internal_server_error');
+    async getById(id: string): Promise<UserModel> {
+        const user = await userRepository.getById(id);
+        if (!user) {
+            throw new AppError('User not found', 'not_found');
         }
+        return new UserModel(user);
     }
 
-    async create (user: CreateUserProps): Promise<UserModel> {
+    async create(user: CreateUserProps): Promise<UserModel> {
         this.validadeData(user);
 
-        try {
-            const hashedPassword = await bcrypt.hash(user.password, 10);
-            const emailExists = await userRepository.findByEmail(user.email);
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const emailExists = await userRepository.findByEmail(user.email);
 
-            if(emailExists) {
-                throw new AppError('Email sent is already registered');
-            }
-
-            const newUser = await userRepository.create({
-                name: user.name, 
-                email: user.email, 
-                password: hashedPassword
-            });
-
-            return new UserModel(newUser);
-        } catch (error) {
-            console.error('Error in userService.create: ' + error);
-            throw new AppError('Internal server error', 'internal_server_error');
+        if (emailExists) {
+            throw new AppError('Email is already registered');
         }
+
+        const newUser = await userRepository.create({
+            name: user.name,
+            email: user.email,
+            password: hashedPassword
+        });
+
+        return new UserModel(newUser);
     }
 }
 
-export const userService = new UserService(); 
+export const userService = new UserService();
