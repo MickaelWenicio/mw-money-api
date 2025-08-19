@@ -15,7 +15,7 @@ class TransactionController {
     }
 
     async getByUserId(req: Request, res: Response) {
-        const { userId } = req.body;
+        const { userId } = req.params;
 
         if (!userId) {
             throw new AppError('Missing userId in request body', 'bad_request');
@@ -30,7 +30,7 @@ class TransactionController {
     }
 
     async deleteById(req: Request, res: Response) {
-        const { transactionId } = req.body;
+        const { transactionId } = req.params;
 
         if (!transactionId) {
             throw new AppError('Missing transactionId in request body', 'bad_request');
@@ -41,7 +41,8 @@ class TransactionController {
     }
 
     async updateById(req: Request, res: Response) {
-        const { transactionId, title, description, value, type, categoryId } = req.body;
+        const { title, description, value, type, categoryId } = req.body;
+        const { transactionId } = req.params;
 
         if (!transactionId) {
             throw new AppError('Missing transactionId in request body', 'bad_request');
