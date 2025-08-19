@@ -3,37 +3,41 @@ import { Request, Response } from 'express';
 import { AppError } from '../utils/app-error';
 
 class TransactionController {
-    async create (req: Request, res: Response) {
-        try {
-            const newTransactionData = {
-                userId: req.body.userId,
-                title: req.body.title,
-                description: req.body.description,
-                value: req.body.value,
-                type: req.body.type,
-                categoryId: req.body.categoryId
-            }
+    async create(req: Request, res: Response) {
+        const { userId, title, description, value, type, categoryId } = req.body;
 
-            if (!newTransactionData.userId || !newTransactionData.title || !newTransactionData.value ||!newTransactionData.type) {
-                res.status(400).json({message: 'Missing required fields to create a transaction'});
-                return;
-            }
-
-            const transaction = await transactionService.create(newTransactionData);
-            res.status(201).json(transaction);
-        } catch (error) {
-            console.error('Error in TransactionController.create: ', error);
-            if (error instanceof AppError) res.status(error.statusCode).json({message: error.message})
+        if (!userId || !title || !value || !type) {
+            throw new AppError('Missing required fields to create a transaction', 'bad_request');
         }
+
+        const transaction = await transactionService.create({ userId, title, description, value, type, categoryId });
+        res.status(201).json({ data: transaction });
     }
 
     async getByUserId(req: Request, res: Response) {
-        try {
-            const transactions = await transactionService.getByUserId(req.params.userId);
-            res.status(200).json(transactions);
-        } catch (error) {
-            if (error instanceof AppError) res.status(error.statusCode).json({message: error.message})
+        const { userId } = req.body;
+
+        if (!userId) {
+            throw new AppError('Missing userId in request body', 'bad_request');
         }
+
+        const transactions = await transactionService.getByUserId(userId);
+        if (transactions.length === 0) {
+            return res.status(204).json({ message: 'No transactions found for this user' });
+        }
+
+        res.status(200).json({ data: transactions });
+    }
+
+    async deleteById(req: Request, res: Response) {
+        const { transactionId } = req.body;
+
+        if (!transactionId) {
+            throw new AppError('Missing transactionId in request body', 'bad_request');
+        }
+
+        await transactionService.deleteById(transactionId);
+        res.status(204).send();
     }
 }
 

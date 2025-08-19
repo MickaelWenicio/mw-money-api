@@ -37,7 +37,7 @@ class TransactionService {
             })
             return transactionList;
         } catch (error) {
-            console.error('Error in transactionService.getByUserId');
+            console.error('Error in transactionService.getByUserId' + error);
             throw new AppError('Internal server error', 'internal_server_error');
         }
     }
@@ -48,7 +48,7 @@ class TransactionService {
         try {
             await transactionRepository.deleteById(transactionId);
         } catch (error) {
-            console.error('Error in transactionService.deleteById');
+            console.error('Error in transactionService.deleteById' + error);
             throw new AppError('Internal server error', 'internal_server_error');
         }
     }
