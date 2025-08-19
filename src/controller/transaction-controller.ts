@@ -23,7 +23,7 @@ class TransactionController {
 
         const transactions = await transactionService.getByUserId(userId);
         if (transactions.length === 0) {
-            return res.status(204).json({ message: 'No transactions found for this user' });
+            res.status(204).json({ message: 'No transactions found for this user' });
         }
 
         res.status(200).json({ data: transactions });
@@ -37,6 +37,17 @@ class TransactionController {
         }
 
         await transactionService.deleteById(transactionId);
+        res.status(204).send();
+    }
+
+    async updateById(req: Request, res: Response) {
+        const { transactionId, title, description, value, type, categoryId } = req.body;
+
+        if (!transactionId) {
+            throw new AppError('Missing transactionId in request body', 'bad_request');
+        }
+
+        await transactionService.updateById(transactionId, { title, description, value, type, categoryId });
         res.status(204).send();
     }
 }

@@ -1,49 +1,35 @@
-import { CreateUserProps } from '../types/user-types';
-import { UserModel } from '../model/user-model';
-import { AppError } from '../utils/app-error';
-import { userRepository } from '../repository/user-repository';
-import bcrypt from 'bcrypt';
+import { TransactionModel } from "../model/transaction-model";
+import { CreateTransactionProps } from "../types/transaction-type";
+import { transactionRepository } from "../repository/transaction-repository";
+import { userService } from "./user-service";
+import { AppError } from "../utils/app-error";
 
-class UserService {
-    validadeData(user: CreateUserProps) {
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!emailRegex.test(user.email)) {
-            throw new AppError('Invalid email');
-        }
-
-        if (!passwordRegex.test(user.password)) {
-            throw new AppError('Weak password');
-        }
-    }
-
-    async getById(id: string): Promise<UserModel> {
-        const user = await userRepository.getById(id);
+class TransactionService {
+    async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
+        const user = await userService.getById(transaction.userId);
         if (!user) {
-            throw new AppError('User not found', 'not_found');
+            throw new AppError('User does not exist', 'not_found');
         }
-        return new UserModel(user);
+
+        if (!transaction.value || transaction.value <= 0) {
+            throw new AppError('Value must be greater than zero');
+        }
+
+        const newTransaction = await transactionRepository.create(transaction);
+        return new TransactionModel(newTransaction);
     }
 
-    async create(user: CreateUserProps): Promise<UserModel> {
-        this.validadeData(user);
+    async getByUserId(userId: string): Promise<TransactionModel[]> {
+        await userService.getById(userId);
 
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        const emailExists = await userRepository.findByEmail(user.email);
+        const unformattedList = await transactionRepository.getByUserId(userId);
+        return unformattedList.map(item => new TransactionModel(item));
+    }
 
-        if (emailExists) {
-            throw new AppError('Email is already registered');
-        }
-
-        const newUser = await userRepository.create({
-            name: user.name,
-            email: user.email,
-            password: hashedPassword
-        });
-
-        return new UserModel(newUser);
+    async deleteById(transactionId: string) {
+        await transactionRepository.getById(transactionId);
+        await transactionRepository.deleteById(transactionId);
     }
 }
 
-export const userService = new UserService();
+export const transactionService = new TransactionService();
