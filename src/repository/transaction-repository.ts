@@ -1,4 +1,4 @@
-import { TransactionProps, CreateTransactionProps } from "../types/transaction-type";
+import { TransactionProps, CreateTransactionProps, SummaryProps } from "../types/transaction-type";
 import { client } from '../config/db';
 
 class TransactionRepository {
@@ -43,7 +43,7 @@ class TransactionRepository {
         return result.rows;
     }
 
-    async getById (id: string): Promise<TransactionProps> {
+    async getById (transactionId: string): Promise<TransactionProps> {
         const sql = `
             SELECT 
                 transactions.user_id, 
@@ -58,7 +58,7 @@ class TransactionRepository {
             LEFT JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.id = $1
         `;
-        const result = await client.query(sql, [id]);
+        const result = await client.query(sql, [transactionId]);
         return result.rows[0];
     }
 
@@ -87,6 +87,26 @@ class TransactionRepository {
             categoryId,
             transactionId
         ]);
+    }
+
+    async getSummary (userId: string) {
+        const sql = `
+            WITH income AS (
+                SELECT SUM(value) AS total_income
+                FROM transactions
+                WHERE user_id = $1 AND type = 'income'
+            ),
+            expense AS (
+                SELECT SUM(value) AS total_expense
+                FROM transactions
+                WHERE user_id = $1 AND type = 'expense'
+            )
+            SELECT income.total_income, expense.total_expense
+            FROM income, expense;
+        `;
+
+        const result = await client.query(sql, [userId]);
+        return result.rows[0]
     }
 }
 

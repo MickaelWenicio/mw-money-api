@@ -1,8 +1,9 @@
 import { TransactionModel } from "../model/transaction-model";
-import { CreateTransactionProps } from "../types/transaction-type";
+import { CreateTransactionProps, SummaryProps } from "../types/transaction-type";
 import { transactionRepository } from "../repository/transaction-repository";
 import { userService } from "./user-service";
 import { AppError } from "../utils/app-error";
+import { formatCurrency } from "../utils/utils";
 
 class TransactionService {
     async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
@@ -42,6 +43,16 @@ class TransactionService {
         }
 
         await transactionRepository.updateById(transactionId, transactionData);
+    }
+
+    async getSummary(userId: string): Promise<SummaryProps> {
+        const summary = await transactionRepository.getSummary(userId);
+
+        return {
+            income: formatCurrency(summary.income),
+            expense: formatCurrency(summary.expense),
+            total: formatCurrency(summary.income - summary.expense)
+        }
     }
 }
 

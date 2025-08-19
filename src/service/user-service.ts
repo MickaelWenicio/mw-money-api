@@ -2,6 +2,7 @@ import { CreateUserProps } from '../types/user-types';
 import { UserModel } from '../model/user-model';
 import { AppError } from '../utils/app-error';
 import { userRepository } from '../repository/user-repository';
+import { transactionService } from './transaction-service';
 import bcrypt from 'bcrypt';
 
 class UserService {
@@ -24,6 +25,16 @@ class UserService {
             throw new AppError('User not found', 'not_found');
         }
         return new UserModel(user);
+    }
+
+    async getAllUserInfo (userId: string) {
+        const user = await this.getById(userId);
+        const summary = await transactionService.getSummary(userId)
+
+        return {
+            user,
+            summary
+        }
     }
 
     async create(user: CreateUserProps): Promise<UserModel> {

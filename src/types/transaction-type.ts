@@ -11,3 +11,9 @@ export type TransactionProps = {
 }
 
 export type CreateTransactionProps = Omit<TransactionProps, 'id' | 'createdAt' | 'updatedAt'>;
+
+export type SummaryProps = {
+    income: string,
+    expense: string,
+    total: string
+}
