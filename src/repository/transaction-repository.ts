@@ -69,6 +69,25 @@ class TransactionRepository {
         `;
         await client.query(sql, [id]);
     }
+
+    async updateById(transactionId: number, transactionData: Partial<TransactionProps>): Promise<void> {
+        const { title, description, value, type, categoryId } = transactionData;
+
+        const sql = `
+            UPDATE transactions
+            SET (title, description, value, type, category_id, updated_at) = ($1, $2, $3, $4, $5, NOW())
+            WHERE id = $6;
+        `;
+
+        await client.query(sql, [
+            title,
+            description,
+            value,
+            type,
+            categoryId,
+            transactionId
+        ]);
+    }
 }
 
 export const transactionRepository = new TransactionRepository();

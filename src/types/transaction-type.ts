@@ -6,7 +6,8 @@ export type TransactionProps = {
     value: number;
     type: 'income' | 'expense';
     createdAt: Date;
+    updatedAt: Date;
     categoryId: number | null;
 }
 
-export type CreateTransactionProps = Omit<TransactionProps, 'id' | 'createdAt'>;
+export type CreateTransactionProps = Omit<TransactionProps, 'id' | 'createdAt' | 'updatedAt'>;
