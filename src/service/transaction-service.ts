@@ -47,6 +47,14 @@ class TransactionService {
             total: formatCurrency(summary.total_income - summary.total_expense || 0)
         }
     }
+
+    async getById(transactionId: string): Promise<TransactionModel>  {
+        const transaction = await transactionRepository.getById(transactionId);
+        if(!transaction){
+            throw new AppError('Transaction does not exist', 'not_found');
+        }
+        return new TransactionModel(transaction);
+    }
 }
 
 export const transactionService = new TransactionService();

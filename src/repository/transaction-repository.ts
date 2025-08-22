@@ -101,7 +101,7 @@ class TransactionRepository {
             FROM income, expense;
         `;
         const result = await client.query(sql, [userId]);
-        return result.rows[0]
+        return result.rows[0];
     }
 }
 
