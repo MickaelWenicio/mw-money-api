@@ -55,7 +55,7 @@ class TransactionController {
         if(!transactionId) {
             new AppError('Missing transactionId in request params', 'bad_request')
         }
-        const transaction = await transactionService.getById(transactionId);        
+        const transaction = await transactionService.getById(transactionId);  
         res.status(200).json({ data: transaction });
     }
 }
