@@ -1,16 +1,24 @@
 export type TransactionProps = {
     id: string;
-    userId: string;
+    user_id: string;
     title: string;
-    description: string | null;
-    value: number;
+    amount: number;
     type: 'income' | 'expense';
-    createdAt: Date;
-    updatedAt: Date;
-    categoryId: number | null;
+    created_at: Date;
+    updated_at: Date;
+    category_id: string | null;
+    category_title: string | null;
 }
 
-export type CreateTransactionProps = Omit<TransactionProps, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTransactionProps = {
+    userId: string;
+    title: string;
+    amount: number;
+    type: 'income' | 'expense';
+    categoryId: string | null;
+}
+
+export type UpdateTransactionProps = Omit<CreateTransactionProps, 'userId'>
 
 export type SummaryProps = {
     income: string,

@@ -4,7 +4,7 @@ import { transactionController } from '../controller/transaction-controller';
 const router = Router();
 
 router.post('/', transactionController.create);
-router.get('/:id', transactionController.getByUserId);
-router.delete('/:id', transactionController.deleteById);
+router.get('/:userId', transactionController.getByUserId);
+router.delete('/:transactionId', transactionController.deleteById);
 
 export default router;

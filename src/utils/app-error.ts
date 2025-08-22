@@ -3,7 +3,6 @@ export class AppError extends Error {
 
     constructor(message: string, errorMessage = 'bad_request') {
         super(message);
-
         const values: Record<string, number> = {
             'bad_request': 400 ,
             'internal_server_error': 500,
