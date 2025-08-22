@@ -34,7 +34,7 @@ class TransactionController {
     async deleteById(req: Request, res: Response) {
         const { transactionId } = req.params;
         if (!transactionId) {
-            throw new AppError('Missing transactionId in request body', 'bad_request');
+            throw new AppError('Missing transactionId in request params', 'bad_request');
         }
         await transactionService.deleteById(transactionId);
         res.status(204).send();
@@ -48,6 +48,20 @@ class TransactionController {
         }
         await transactionService.updateById(transactionId, { title, amount, type, categoryId });
         res.status(204).send();
+    }
+
+    async getById(req: Request, res: Response) {
+        const { transactionId } = req.params;
+        
+        if(!transactionId) {
+            new AppError('Missing transactionId in request params', 'bad_request')
+        }
+        const transaction = await transactionService.getById(transactionId);
+        if(!transaction) {
+            res.status(204).json({ message: 'No transaction founded' });
+        }
+        
+        res.status(200).json({ data: transaction });
     }
 }
 
