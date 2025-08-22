@@ -1,24 +1,27 @@
 import { TransactionProps } from '../types/transaction-type';
+import { formatCurrency } from '../utils/utils';
 
 export class TransactionModel {
     readonly id: string;
     private userId: string;
     public title: string;
-    public description: string | null;
-    public value: number;
+    public amount: number;
     public type: 'income' | 'expense';
     public createdAt: Date;
-    public categoryId: number | null;
+    public updatedAt: Date;
+    public categoryId: string | null;
+    public categoryTitle: string | null;
 
     constructor(props: TransactionProps) {
         this.id = props.id;
-        this.userId = props.userId;
+        this.userId = props.user_id;
         this.title = props.title;
-        this.description = props.description;
-        this.value = props.value;
+        this.amount = props.amount;
         this.type = props.type;
-        this.createdAt = props.createdAt
-        this.categoryId = props.categoryId
+        this.createdAt = props.created_at;
+        this.updatedAt = props.updated_at
+        this.categoryId = props.category_id;
+        this.categoryTitle = props.category_title;
     }
 
     getId() {
@@ -27,5 +30,9 @@ export class TransactionModel {
 
     getUserId() {
         return this.userId;
+    }
+
+    getFormatedValue() {
+        return formatCurrency(this.amount);
     }
 }

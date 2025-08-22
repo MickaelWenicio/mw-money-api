@@ -1,4 +1,4 @@
-import { TransactionProps, CreateTransactionProps, SummaryProps } from "../types/transaction-type";
+import { TransactionProps, CreateTransactionProps, UpdateTransactionProps } from "../types/transaction-type";
 import { client } from '../config/db';
 
 class TransactionRepository {
@@ -7,16 +7,14 @@ class TransactionRepository {
     async create (transaction: CreateTransactionProps ): Promise<TransactionProps> {
         const sql = `
             INSERT INTO transactions
-            (user_id, title, description, value, type, category_id)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            (user_id, title, amount, type, category_id)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *;
         `;
-
         const result = await client.query(sql, [
             transaction.userId,
             transaction.title,
-            transaction.description,
-            transaction.value,
+            transaction.amount,
             transaction.type,
             transaction.categoryId
         ]);
@@ -26,16 +24,17 @@ class TransactionRepository {
     async getByUserId (userId: string): Promise<TransactionProps[]> {
         const sql = `
             SELECT 
-                transactions.user_id, 
-                transactions.title, 
-                transactions.description, 
-                transactions.value, 
-                transactions.type, 
-                transactions.category_id, 
+                transactions.id,
+                transactions.title,
+                transactions.amount,
+                transactions.type,
+                transactions.category_id,
+                transactions.user_id,
                 transactions.created_at,
-                categories.name
+                transactions.updated_at,
+                categories.title AS category_title
             FROM transactions
-            INNER JOIN categories ON transactions.category_id = categories.id
+            LEFT JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.user_id = $1
             ORDER BY transactions.created_at DESC;
         `;
@@ -46,14 +45,14 @@ class TransactionRepository {
     async getById (transactionId: string): Promise<TransactionProps> {
         const sql = `
             SELECT 
-                transactions.user_id, 
-                transactions.title, 
-                transactions.description, 
-                transactions.value, 
-                transactions.type, 
-                transactions.category_id, 
+                transactions.id,
+                transactions.title,
+                transactions.amount,
+                transactions.type,
+                transactions.category_id,
+                transactions.user_id,
                 transactions.created_at,
-                categories.name 
+                categories.title AS category_title
             FROM transactions
             LEFT JOIN categories ON transactions.category_id = categories.id
             WHERE transactions.id = $1
@@ -70,19 +69,16 @@ class TransactionRepository {
         await client.query(sql, [id]);
     }
 
-    async updateById(transactionId: string, transactionData: Partial<TransactionProps>): Promise<void> {
-        const { title, description, value, type, categoryId } = transactionData;
-
+    async updateById(transactionId: string, transactionData: UpdateTransactionProps): Promise<void> {
+        const { title, amount, type, categoryId } = transactionData;
         const sql = `
             UPDATE transactions
-            SET (title, description, value, type, category_id, updated_at) = ($1, $2, $3, $4, $5, NOW())
-            WHERE id = $6;
+            SET (title, amount, type, category_id, updated_at) = ($1, $2, $3, $4, NOW())
+            WHERE id = $5;
         `;
-
         await client.query(sql, [
             title,
-            description,
-            value,
+            amount,
             type,
             categoryId,
             transactionId
@@ -92,19 +88,18 @@ class TransactionRepository {
     async getSummary (userId: string) {
         const sql = `
             WITH income AS (
-                SELECT SUM(value) AS total_income
+                SELECT SUM(amount) AS total_income
                 FROM transactions
                 WHERE user_id = $1 AND type = 'income'
             ),
             expense AS (
-                SELECT SUM(value) AS total_expense
+                SELECT SUM(amount) AS total_expense
                 FROM transactions
                 WHERE user_id = $1 AND type = 'expense'
             )
             SELECT income.total_income, expense.total_expense
             FROM income, expense;
         `;
-
         const result = await client.query(sql, [userId]);
         return result.rows[0]
     }

@@ -29,7 +29,7 @@ export class UserModel {
         this.password = newPassword;
         this.updated_at = new Date();
     }
-
+    
     getEmail () {
         return this.email;
     }
