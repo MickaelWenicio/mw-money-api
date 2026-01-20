@@ -2,17 +2,17 @@ import { TransactionModel } from "../model/transaction-model";
 import { CreateTransactionProps, SummaryProps, UpdateTransactionProps } from "../types/transaction-type";
 import { transactionRepository } from "../repository/transaction-repository";
 import { userService } from "./user-service";
-import { AppError } from "../utils/app-error";
+import { BadRequestError, NotFoundError } from "../utils/api-error";
 import { formatCurrency } from "../utils/utils";
 
 class TransactionService {
     async create(transaction: CreateTransactionProps): Promise<TransactionModel> {
         const user = await userService.getById(transaction.userId);
         if (!user) {
-            throw new AppError('User does not exist', 'not_found');
+            throw new NotFoundError('User does not exist');
         }
         if (!Number(transaction.amount) || Number(transaction.amount) <= 0 ) {
-            throw new AppError('Value must be greater than zero');
+            throw new BadRequestError('Value must be greater than zero');
         }
         const newTransaction = await transactionRepository.create(transaction);
         return new TransactionModel(newTransaction);
@@ -31,10 +31,10 @@ class TransactionService {
     async updateById(transactionId: string, transactionData: UpdateTransactionProps) {
         const transaction = await transactionRepository.getById(transactionId);
         if (!transaction) {
-            throw new AppError('Transaction does not exist', 'not_found');
+            throw new NotFoundError('Transaction does not exist');
         }
         if (transactionData.amount && transactionData.amount <= 0) {
-            throw new AppError('Value must be greater than zero');
+            throw new BadRequestError('Value must be greater than zero');
         }
         await transactionRepository.updateById(transactionId, transactionData);
     }
@@ -51,7 +51,7 @@ class TransactionService {
     async getById(transactionId: string): Promise<TransactionModel>  {
         const transaction = await transactionRepository.getById(transactionId);
         if(!transaction){
-            throw new AppError('Transaction does not exist', 'not_found');
+            throw new NotFoundError('Transaction does not exist');
         }
         return new TransactionModel(transaction);
     }

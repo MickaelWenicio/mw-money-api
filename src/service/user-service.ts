@@ -1,6 +1,6 @@
 import { CreateUserProps } from '../types/user-types';
 import { UserModel } from '../model/user-model';
-import { AppError } from '../utils/app-error';
+import { BadRequestError, NotFoundError } from '../utils/api-error';
 import { userRepository } from '../repository/user-repository';
 import { transactionService } from './transaction-service';
 import bcrypt from 'bcrypt';
@@ -10,17 +10,17 @@ class UserService {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(user.email)) {
-            throw new AppError('Invalid email');
+            throw new BadRequestError('Invalid email');
         }
         if (!passwordRegex.test(user.password)) {
-            throw new AppError('Weak password');
+            throw new BadRequestError('Weak password');
         }
     }
 
     async getById(userId: string): Promise<UserModel> {
         const user = await userRepository.getById(userId);
         if (!user) {
-            throw new AppError('User not found', 'not_found');
+            throw new NotFoundError('User not found');
         }
         return new UserModel(user);
     }
@@ -39,7 +39,7 @@ class UserService {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         const emailExists = await userRepository.findByEmail(user.email);
         if (emailExists) {
-            throw new AppError('Email is already registered');
+            throw new BadRequestError('Email is already registered');
         }
         const newUser = await userRepository.create({
             name: user.name,

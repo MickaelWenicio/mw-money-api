@@ -6,7 +6,7 @@ import categoryRoutes from './category-routes';
 const router = Router();
 
 router.use('/users', userRoutes);
-router.use('/transactions', transactionRoutes);
+router.use('/transaction', transactionRoutes);
 router.use('/category', categoryRoutes);
 
 export default router;

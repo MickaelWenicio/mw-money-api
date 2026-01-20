@@ -1,12 +1,12 @@
 import { transactionService } from '../service/transaction-service';
 import { Request, Response } from 'express';
-import { AppError } from '../utils/app-error';
+import { BadRequestError } from '../utils/api-error';
 
 class TransactionController {
     async create(req: Request, res: Response) {
         const { userId, title, amount, type, categoryId } = req.body;
         if (!userId || !title || !amount || !type) {
-            throw new AppError('Missing required fields to create a transaction', 'bad_request');
+            throw new BadRequestError('Missing required fields to create a transaction');
         }
         const transaction = await transactionService.create({ 
             userId,
@@ -21,7 +21,7 @@ class TransactionController {
     async getByUserId(req: Request, res: Response) {
         const { userId } = req.params;
         if (!userId) {
-            throw new AppError('Missing userId in request body', 'bad_request');
+            throw new BadRequestError('Missing userId in request body');
         }
         const transactions = await transactionService.getByUserId(userId);
         if (transactions.length === 0) {
@@ -34,7 +34,7 @@ class TransactionController {
     async deleteById(req: Request, res: Response) {
         const { transactionId } = req.params;
         if (!transactionId) {
-            throw new AppError('Missing transactionId in request params', 'bad_request');
+            throw new BadRequestError('Missing transactionId in request params');
         }
         await transactionService.deleteById(transactionId);
         res.status(204).send();
@@ -44,7 +44,7 @@ class TransactionController {
         const { title, amount, type, categoryId } = req.body;
         const { transactionId } = req.params;
         if (!transactionId) {
-            throw new AppError('Missing transactionId in request body', 'bad_request');
+            throw new BadRequestError('Missing transactionId in request body');
         }
         await transactionService.updateById(transactionId, { title, amount, type, categoryId });
         res.status(204).send();
@@ -53,7 +53,7 @@ class TransactionController {
     async getById(req: Request, res: Response) {
         const { transactionId } = req.params;
         if(!transactionId) {
-            new AppError('Missing transactionId in request params', 'bad_request')
+            throw new BadRequestError('Missing transactionId in request params');
         }
         const transaction = await transactionService.getById(transactionId);  
         res.status(200).json({ data: transaction });
